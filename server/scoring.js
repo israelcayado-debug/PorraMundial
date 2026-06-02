@@ -17,9 +17,9 @@ const BRACKET_STAGE_POINTS = {
   round_of_32: { label: "Equipos en dieciseisavos", exact: 5, elsewhere: 3, mode: "slot" },
   round_of_16: { label: "Equipos en octavos", team: 6, mode: "team" },
   quarterfinals: { label: "Equipos en cuartos", team: 7, mode: "team" },
-  semifinals: { label: "Equipos en semifinales", team: 7, mode: "team" },
+  semifinals: { label: "Equipos en semifinales", team: 8, mode: "team" },
   third_place: { label: "Equipos en tercer y cuarto puesto", team: 7, mode: "team" },
-  final: { label: "Finalistas", team: 8, mode: "team" }
+  final: { label: "Finalistas", team: 9, mode: "team" }
 };
 
 function hashString(value) {
