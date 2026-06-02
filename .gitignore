@@ -1,0 +1,16 @@
+node_modules/
+dist/
+client/dist/
+data/*.db
+data/*.db-*
+data/*.sqlite
+data/*.sqlite-*
+.env
+.env.*
+!.env.example
+npm-debug.log*
+output/
+.playwright-cli/
+tmp_*
+*.log
+*.pdf

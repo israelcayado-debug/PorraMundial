@@ -1,0 +1,80 @@
+import { HelpCircle, Shield, Trophy, Users } from "lucide-react";
+
+export function HelpPanel({ audience = "player", onClose }) {
+  const isAdmin = audience === "admin";
+
+  return (
+    <section className="panel help-panel">
+      <div className="panel__title help-panel__title">
+        <div>
+          <HelpCircle size={20} />
+          <h3>Ayuda de DelfinPorra</h3>
+        </div>
+        <button type="button" className="ghost-button" onClick={onClose}>Cerrar ayuda</button>
+      </div>
+
+      <div className="help-grid">
+        <article className="help-card help-card--primary">
+          <Trophy size={22} />
+          <h4>Cómo se juega</h4>
+          <p>Antes del bloqueo cada jugador rellena la fase de grupos, las eliminatorias y el máximo goleador.</p>
+          <ul>
+            <li>En grupos se elige 1, X o 2 para cada partido.</li>
+            <li>En eliminatorias se elige qué selección pasa de ronda.</li>
+            <li>El máximo goleador se escribe libremente, sin lista cerrada.</li>
+            <li>Las apuestas se bloquean 24 horas antes del inicio del Mundial.</li>
+          </ul>
+        </article>
+
+        <article className="help-card">
+          <Shield size={22} />
+          <h4>Puntuación</h4>
+          <ul>
+            <li>Resultado 1/X/2 acertado en fase de grupos: 2 puntos.</li>
+            <li>Selección acertada en dieciseisavos: 2 puntos.</li>
+            <li>Selección acertada en octavos: 3 puntos.</li>
+            <li>Selección acertada en cuartos: 4 puntos.</li>
+            <li>Selección acertada en semifinales: 5 puntos.</li>
+            <li>Selección acertada en la final o campeón: 10 puntos.</li>
+            <li>Máximo goleador acertado: 8 puntos.</li>
+          </ul>
+        </article>
+
+        <article className="help-card">
+          <Users size={22} />
+          <h4>Empates y desempates</h4>
+          <p>Si hay empate dentro de un grupo, el jugador puede ordenar manualmente los equipos empatados con Subir/Bajar.</p>
+          <ul>
+            <li>El administrador hará lo mismo con la clasificación real si hay empate oficial, sorteo o criterio externo.</li>
+            <li>Si dos jugadores empatan a puntos, se desempata por campeón, máximo goleador y aciertos por rondas.</li>
+            <li>Si siguen empatados después de todos los criterios, comparten posición y premio.</li>
+          </ul>
+        </article>
+
+        {isAdmin ? (
+          <article className="help-card help-card--admin">
+            <HelpCircle size={22} />
+            <h4>Uso del administrador</h4>
+            <ul>
+              <li>En Resultados se introducen los resultados oficiales de grupos y quién pasa en eliminatorias.</li>
+              <li>Los cruces se rellenan automáticamente al cerrar grupos y rondas anteriores.</li>
+              <li>En Usuarios se aceptan participantes después del pago, se crean usuarios y se resetean contraseñas.</li>
+              <li>En Goleador se escribe el máximo goleador oficial al terminar el Mundial.</li>
+            </ul>
+          </article>
+        ) : (
+          <article className="help-card help-card--admin">
+            <HelpCircle size={22} />
+            <h4>Consejos para jugadores</h4>
+            <ul>
+              <li>Rellena primero todos los grupos para que se calculen tus cruces.</li>
+              <li>Después entra en Eliminatorias y selecciona quién pasa ronda a ronda.</li>
+              <li>Revisa el panel superior: muestra pendientes, puntos y evolución.</li>
+              <li>Cuando el admin publique resultados verás tu puntuación en Seguimiento de resultados.</li>
+            </ul>
+          </article>
+        )}
+      </div>
+    </section>
+  );
+}
