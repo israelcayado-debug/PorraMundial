@@ -827,6 +827,7 @@ export function AdminPage({
                   teamsByCode={teamsByCode}
                   buttonLabel="Publicar resultado"
                   savedLabel="Resultado publicado"
+                  allowClear
                 />
               ))}
             </div>

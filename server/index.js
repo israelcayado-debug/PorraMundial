@@ -357,6 +357,17 @@ app.get("/api/admin", authMiddleware, adminMiddleware, (_req, res) => {
 app.post("/api/admin/matches/:id/result", authMiddleware, adminMiddleware, (req, res) => {
   const matchId = Number(req.params.id);
   const { actualHomeScore, actualAwayScore } = req.body;
+
+  if (actualHomeScore === null && actualAwayScore === null) {
+    db.prepare(`
+      UPDATE matches
+      SET actual_home_score = NULL, actual_away_score = NULL
+      WHERE id = ?
+    `).run(matchId);
+
+    return res.json({ ok: true, admin: getAdminData(), leaderboard: getLeaderboard() });
+  }
+
   if ([actualHomeScore, actualAwayScore].some((value) => value === undefined || value === null)) {
     return res.status(400).json({ error: "Resultado incompleto" });
   }

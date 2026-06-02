@@ -147,7 +147,8 @@ export function MatchCard({
   disabled = false,
   buttonLabel = "Guardar",
   savedLabel = "Apuesta guardada",
-  savedValueLabel
+  savedValueLabel,
+  allowClear = false
 }) {
   const home = getParticipantLabel(match.home_team, match, teamsByCode);
   const away = getParticipantLabel(match.away_team, match, teamsByCode);
@@ -169,6 +170,11 @@ export function MatchCard({
   };
 
   const saveOutcome = (outcome) => {
+    if (allowClear && selectedOutcome === outcome) {
+      onSave(match.id, null, null);
+      return;
+    }
+
     if (outcome === "home") {
       onSave(match.id, 1, 0);
     } else if (outcome === "away") {
