@@ -5,9 +5,10 @@ import bcrypt from "bcryptjs";
 import { matches, standingsPredictions, teams, tournamentConfig } from "./data/seed.js";
 
 const dataDir = path.resolve("data");
-fs.mkdirSync(dataDir, { recursive: true });
+const databasePath = process.env.DATABASE_PATH || path.join(dataDir, "porra.db");
+fs.mkdirSync(path.dirname(databasePath), { recursive: true });
 
-const db = new Database(path.join(dataDir, "porra.db"));
+const db = new Database(databasePath);
 db.pragma("journal_mode = WAL");
 
 const schema = `
