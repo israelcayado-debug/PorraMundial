@@ -4,6 +4,7 @@ import { Mail, Settings, Users, SendHorizontal, CalendarRange, Pencil, Trash2, P
 import { HelpPanel } from "../components/HelpPanel.jsx";
 import { MatchCard } from "../components/MatchCard.jsx";
 import { ScorerInput } from "../components/ScorerInput.jsx";
+import { appAsset } from "../lib.js";
 
 const stageOptions = [
   { value: "groups", label: "Fase de grupos" },
@@ -714,7 +715,7 @@ export function AdminPage({
     <div className="dashboard">
       <header className="topbar">
         <div>
-          <img className="brand-logo brand-logo--topbar" src="/delfin-logo.png" alt="Delfin Tubes" />
+          <img className="brand-logo brand-logo--topbar" src={appAsset("delfin-logo.png")} alt="Delfin Tubes" />
           <span className="hero-tag">DelfinPorra Admin</span>
           <h1>Panel admin de {user.displayName}</h1>
           <p>Esta vista está separada de la porra del jugador. Aquí solo gestionas resultados, goleador, usuarios y envíos.</p>

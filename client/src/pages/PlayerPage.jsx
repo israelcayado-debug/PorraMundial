@@ -7,6 +7,7 @@ import { FlagBadge, MatchCard } from "../components/MatchCard.jsx";
 import { HelpPanel } from "../components/HelpPanel.jsx";
 import { ScorerInput } from "../components/ScorerInput.jsx";
 import { StatCard } from "../components/StatCard.jsx";
+import { appAsset } from "../lib.js";
 
 const knockoutTabs = [
   { key: "round_of_32", label: "Dieciseisavos" },
@@ -565,7 +566,7 @@ export function PlayerPage({
     <div className="dashboard">
       <header className="topbar">
         <div>
-          <img className="brand-logo brand-logo--topbar" src="/delfin-logo.png" alt="Delfin Tubes" />
+          <img className="brand-logo brand-logo--topbar" src={appAsset("delfin-logo.png")} alt="Delfin Tubes" />
           <span className="hero-tag">DelfinPorra 2026</span>
           <h1>Hola, {user.displayName}</h1>
           <p>Tu zona de apuestas está separada de la administración y organizada por grupos y fases eliminatorias.</p>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff, ShieldCheck, Trophy, Mail, Sparkles } from "lucide-react";
-import { api, saveSession } from "../lib.js";
+import { api, appAsset, saveSession } from "../lib.js";
 
 const initialRegister = { displayName: "", email: "", password: "", confirmPassword: "" };
 const initialLogin = { email: "", password: "" };
@@ -64,7 +64,7 @@ export function AuthPage({ onAuthenticated }) {
   return (
     <section className="auth-page">
       <div className="hero-copy">
-        <img className="brand-logo" src="/delfin-logo.png" alt="Delfin Tubes" />
+        <img className="brand-logo" src={appAsset("delfin-logo.png")} alt="Delfin Tubes" />
         <span className="hero-tag">DelfinPorra 2026</span>
         <h1>DelfinPorra, la porra mundialista de Delfin Tubes.</h1>
         <p>
