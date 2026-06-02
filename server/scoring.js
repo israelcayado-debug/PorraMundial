@@ -14,8 +14,9 @@ const STAGE_LABELS = {
 const PLAYER_COLORS = ["#3cccf4", "#ffd166", "#95e06c", "#ff6fb5", "#f78c6b", "#b8f7d4", "#f6e05e", "#7dd3fc"];
 
 const BRACKET_STAGE_POINTS = {
-  round_of_16: { label: "Equipos en octavos", exact: 5, elsewhere: 3, mode: "slot" },
-  quarterfinals: { label: "Equipos en cuartos", team: 6, mode: "team" },
+  round_of_32: { label: "Equipos en dieciseisavos", exact: 5, elsewhere: 3, mode: "slot" },
+  round_of_16: { label: "Equipos en octavos", team: 6, mode: "team" },
+  quarterfinals: { label: "Equipos en cuartos", team: 7, mode: "team" },
   semifinals: { label: "Equipos en semifinales", team: 7, mode: "team" },
   third_place: { label: "Equipos en tercer y cuarto puesto", team: 7, mode: "team" },
   final: { label: "Finalistas", team: 8, mode: "team" }

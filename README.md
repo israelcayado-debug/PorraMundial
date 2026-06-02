@@ -31,8 +31,9 @@ El máximo goleador se escribe libremente. Al evaluar el Mundial, el administrad
 
 - Partido acertado de fase de grupos: 2 puntos.
 - Acertar todos los partidos de un mismo grupo: 8 puntos.
-- Equipo acertado en octavos: 5 puntos en su sitio, 3 puntos fuera de sitio.
-- Equipo acertado en cuartos: 6 puntos.
+- Equipo acertado en dieciseisavos: 5 puntos en su sitio, 3 puntos fuera de sitio.
+- Equipo acertado en octavos: 6 puntos.
+- Equipo acertado en cuartos: 7 puntos.
 - Equipo acertado en semifinales: 7 puntos.
 - Equipo acertado en tercer y cuarto puesto: 7 puntos.
 - Equipo acertado finalista: 8 puntos.

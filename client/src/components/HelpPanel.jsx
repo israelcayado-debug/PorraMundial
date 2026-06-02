@@ -32,8 +32,9 @@ export function HelpPanel({ audience = "player", onClose }) {
           <ul>
             <li>Partido acertado de fase de grupos: 2 puntos.</li>
             <li>Acertar todos los partidos de un mismo grupo: 8 puntos.</li>
-            <li>Equipo acertado en octavos: 5 puntos en su sitio, 3 puntos fuera de sitio.</li>
-            <li>Equipo acertado en cuartos: 6 puntos.</li>
+            <li>Equipo acertado en dieciseisavos: 5 puntos en su sitio, 3 puntos fuera de sitio.</li>
+            <li>Equipo acertado en octavos: 6 puntos.</li>
+            <li>Equipo acertado en cuartos: 7 puntos.</li>
             <li>Equipo acertado en semifinales: 7 puntos.</li>
             <li>Equipo acertado en tercer y cuarto puesto: 7 puntos.</li>
             <li>Equipo acertado finalista: 8 puntos.</li>
