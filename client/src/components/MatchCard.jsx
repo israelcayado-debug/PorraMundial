@@ -152,7 +152,10 @@ export function MatchCard({
 }) {
   const home = getParticipantLabel(match.home_team, match, teamsByCode);
   const away = getParticipantLabel(match.away_team, match, teamsByCode);
-  const hasSavedPrediction = prediction?.predicted_home_score !== undefined && prediction?.predicted_away_score !== undefined;
+  const hasSavedPrediction = prediction?.predicted_home_score !== undefined
+    && prediction?.predicted_away_score !== undefined
+    && prediction?.predicted_home_score !== null
+    && prediction?.predicted_away_score !== null;
   const allowsDraw = match.stage === "groups";
   const isKnockout = !allowsDraw;
   const selectedOutcome = hasSavedPrediction
