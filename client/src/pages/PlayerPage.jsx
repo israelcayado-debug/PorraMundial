@@ -719,10 +719,14 @@ export function PlayerPage({
                   <span>{stage.points} pts</span>
                 </div>
                 <p>
-                  {stage.exactHits} en su sitio · {stage.elsewhereHits} fuera de sitio
+                  {stage.elsewherePoints > 0
+                    ? `${stage.exactHits} en su sitio · ${stage.elsewhereHits} fuera de sitio`
+                    : `${stage.exactHits} aciertos`}
                 </p>
                 <small>
-                  {stage.exactPoints} pts exacto · {stage.elsewherePoints} pts fuera
+                  {stage.elsewherePoints > 0
+                    ? `${stage.exactPoints} pts en sitio · ${stage.elsewherePoints} pts fuera`
+                    : `${stage.exactPoints} pts por acierto`}
                 </small>
               </article>
             ))}

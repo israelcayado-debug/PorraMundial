@@ -14,10 +14,11 @@ const STAGE_LABELS = {
 const PLAYER_COLORS = ["#3cccf4", "#ffd166", "#95e06c", "#ff6fb5", "#f78c6b", "#b8f7d4", "#f6e05e", "#7dd3fc"];
 
 const BRACKET_STAGE_POINTS = {
-  round_of_32: { label: "Dieciseisavos", exact: 4, elsewhere: 2 },
-  round_of_16: { label: "Octavos", exact: 6, elsewhere: 3 },
-  quarterfinals: { label: "Cuartos", exact: 8, elsewhere: 4 },
-  semifinals: { label: "Semifinales", exact: 10, elsewhere: 5 }
+  round_of_16: { label: "Equipos en octavos", exact: 5, elsewhere: 3, mode: "slot" },
+  quarterfinals: { label: "Equipos en cuartos", team: 6, mode: "team" },
+  semifinals: { label: "Equipos en semifinales", team: 7, mode: "team" },
+  third_place: { label: "Equipos en tercer y cuarto puesto", team: 7, mode: "team" },
+  final: { label: "Finalistas", team: 8, mode: "team" }
 };
 
 function hashString(value) {
@@ -49,6 +50,14 @@ function getWinnerCode(homeScore, awayScore, homeCode, awayCode) {
   }
 
   return homeScore > awayScore ? homeCode : awayCode;
+}
+
+function getLoserCode(homeScore, awayScore, homeCode, awayCode) {
+  if (homeScore === null || awayScore === null || homeScore === awayScore) {
+    return null;
+  }
+
+  return homeScore > awayScore ? awayCode : homeCode;
 }
 
 function getPredictedOutcome(prediction) {
@@ -339,6 +348,24 @@ function resolveBracketToken(token, contextMatch, { matchesByNumber, predictions
       return resolved;
     }
 
+    const loserToken = /^L(\d+)$/.exec(currentToken);
+    if (loserToken) {
+      const previousMatch = matchesByNumber.get(Number(loserToken[1]));
+      if (!previousMatch) {
+        cache.set(cacheKey, null);
+        return null;
+      }
+
+      const homeCode = resolve(previousMatch.home_team, previousMatch);
+      const awayCode = resolve(previousMatch.away_team, previousMatch);
+      const source = mode === "prediction" ? predictionsByMatch.get(previousMatch.id) : previousMatch;
+      const homeScore = mode === "prediction" ? source?.predicted_home_score : source?.actual_home_score;
+      const awayScore = mode === "prediction" ? source?.predicted_away_score : source?.actual_away_score;
+      const resolved = getLoserCode(homeScore ?? null, awayScore ?? null, homeCode, awayCode);
+      cache.set(cacheKey, resolved);
+      return resolved;
+    }
+
     cache.set(cacheKey, null);
     return null;
   };
@@ -388,6 +415,49 @@ function buildStageSlots(stage, matches, resolver) {
 function countSharedTeams(predictedSlots, actualSlots) {
   const actualTeams = new Set(actualSlots.map((slot) => slot.teamCode));
   return predictedSlots.filter((slot) => actualTeams.has(slot.teamCode)).length;
+}
+
+function scoreStageBySlot(predictedSlots, actualSlots, config) {
+  const actualBySlot = new Map(actualSlots.map((slot) => [slot.slot, slot.teamCode]));
+  const actualTeams = new Set(actualSlots.map((slot) => slot.teamCode));
+  let exactHits = 0;
+  let elsewhereHits = 0;
+
+  for (const predictedSlot of predictedSlots) {
+    if (actualBySlot.get(predictedSlot.slot) === predictedSlot.teamCode) {
+      exactHits += 1;
+    } else if (actualTeams.has(predictedSlot.teamCode)) {
+      elsewhereHits += 1;
+    }
+  }
+
+  return {
+    exactHits,
+    elsewhereHits,
+    points: exactHits * config.exact + elsewhereHits * config.elsewhere
+  };
+}
+
+function scoreStageByTeam(predictedSlots, actualSlots, pointsPerTeam) {
+  const hits = countSharedTeams(predictedSlots, actualSlots);
+  return {
+    exactHits: hits,
+    elsewhereHits: 0,
+    points: hits * pointsPerTeam
+  };
+}
+
+function getResolvedMatchWinner(match, resolver, predictionsByMatch, mode) {
+  if (!match) {
+    return null;
+  }
+
+  const resolvedHome = resolver(match.home_team, match);
+  const resolvedAway = resolver(match.away_team, match);
+  const source = mode === "prediction" ? predictionsByMatch.get(match.id) : match;
+  const homeScore = mode === "prediction" ? source?.predicted_home_score : source?.actual_home_score;
+  const awayScore = mode === "prediction" ? source?.predicted_away_score : source?.actual_away_score;
+  return getWinnerCode(homeScore ?? null, awayScore ?? null, resolvedHome, resolvedAway);
 }
 
 function scoreBracketProgression({ matches, teams, userPredictions, userQualifiers, userGroupOrders = [], actualQualifiers, officialGroupOrders = [] }) {
@@ -443,52 +513,58 @@ function scoreBracketProgression({ matches, teams, userPredictions, userQualifie
   for (const [stage, config] of Object.entries(BRACKET_STAGE_POINTS)) {
     const predictedSlots = buildStageSlots(stage, matches, predictedResolver);
     const actualSlots = buildStageSlots(stage, matches, actualResolver);
-    const actualBySlot = new Map(actualSlots.map((slot) => [slot.slot, slot.teamCode]));
-    const actualTeams = new Set(actualSlots.map((slot) => slot.teamCode));
+    const stageScore = config.mode === "slot"
+      ? scoreStageBySlot(predictedSlots, actualSlots, config)
+      : scoreStageByTeam(predictedSlots, actualSlots, config.team);
 
-    let exactHits = 0;
-    let elsewhereHits = 0;
-
-    for (const predictedSlot of predictedSlots) {
-      if (actualBySlot.get(predictedSlot.slot) === predictedSlot.teamCode) {
-        exactHits += 1;
-        points += config.exact;
-      } else if (actualTeams.has(predictedSlot.teamCode)) {
-        elsewhereHits += 1;
-        points += config.elsewhere;
-      }
-    }
+    points += stageScore.points;
 
     details.push({
       stage,
       label: config.label,
-      exactHits,
-      elsewhereHits,
-      points: exactHits * config.exact + elsewhereHits * config.elsewhere,
-      exactPoints: config.exact,
-      elsewherePoints: config.elsewhere
+      exactHits: stageScore.exactHits,
+      elsewhereHits: stageScore.elsewhereHits,
+      points: stageScore.points,
+      exactPoints: config.exact ?? config.team,
+      elsewherePoints: config.elsewhere ?? 0
     });
   }
 
   const finalMatch = matches.find((match) => match.stage === "final");
   if (finalMatch) {
-    const predictedHome = predictedResolver(finalMatch.home_team, finalMatch);
-    const predictedAway = predictedResolver(finalMatch.away_team, finalMatch);
-    const actualHome = actualResolver(finalMatch.home_team, finalMatch);
-    const actualAway = actualResolver(finalMatch.away_team, finalMatch);
-    const predictedFinalWinner = getWinnerCode(
-      predictionsByMatch.get(finalMatch.id)?.predicted_home_score ?? null,
-      predictionsByMatch.get(finalMatch.id)?.predicted_away_score ?? null,
-      predictedHome,
-      predictedAway
-    );
-    const actualFinalWinner = getWinnerCode(
-      finalMatch.actual_home_score ?? null,
-      finalMatch.actual_away_score ?? null,
-      actualHome,
-      actualAway
-    );
-    tieBreak.championHit = predictedFinalWinner && actualFinalWinner && predictedFinalWinner === actualFinalWinner ? 1 : 0;
+    const predictedFinalWinner = getResolvedMatchWinner(finalMatch, predictedResolver, predictionsByMatch, "prediction");
+    const actualFinalWinner = getResolvedMatchWinner(finalMatch, actualResolver, predictionsByMatch, "actual");
+    if (predictedFinalWinner && actualFinalWinner && predictedFinalWinner === actualFinalWinner) {
+      points += 10;
+      tieBreak.championHit = 1;
+      details.push({
+        stage: "champion",
+        label: "Campeón",
+        exactHits: 1,
+        elsewhereHits: 0,
+        points: 10,
+        exactPoints: 10,
+        elsewherePoints: 0
+      });
+    }
+  }
+
+  const thirdPlaceMatch = matches.find((match) => match.stage === "third_place");
+  if (thirdPlaceMatch) {
+    const predictedThirdPlaceWinner = getResolvedMatchWinner(thirdPlaceMatch, predictedResolver, predictionsByMatch, "prediction");
+    const actualThirdPlaceWinner = getResolvedMatchWinner(thirdPlaceMatch, actualResolver, predictionsByMatch, "actual");
+    if (predictedThirdPlaceWinner && actualThirdPlaceWinner && predictedThirdPlaceWinner === actualThirdPlaceWinner) {
+      points += 8;
+      details.push({
+        stage: "third_place_winner",
+        label: "Tercer clasificado",
+        exactHits: 1,
+        elsewhereHits: 0,
+        points: 8,
+        exactPoints: 8,
+        elsewherePoints: 0
+      });
+    }
   }
 
   tieBreak.finalTeamHits = countSharedTeams(buildStageSlots("final", matches, predictedResolver), buildStageSlots("final", matches, actualResolver));
@@ -505,6 +581,10 @@ function scorePrediction(prediction, match) {
     return { points: 0, reason: "Pendiente" };
   }
 
+  if (match.stage !== "groups") {
+    return { points: 0, reason: "Puntuación por cuadro" };
+  }
+
   const predictedOutcome = getMatchOutcome(prediction.predicted_home_score, prediction.predicted_away_score);
   const actualOutcome = getMatchOutcome(match.actual_home_score, match.actual_away_score);
 
@@ -513,6 +593,35 @@ function scorePrediction(prediction, match) {
   }
 
   return { points: 0, reason: "Sin acierto" };
+}
+
+function scoreGroupPerfectBonuses(matches, userPredictions) {
+  const predictionsByMatch = new Map(userPredictions.map((prediction) => [prediction.match_id, prediction]));
+  const groups = Object.groupBy(matches.filter((match) => match.stage === "groups" && match.group_name), ({ group_name }) => group_name);
+  let points = 0;
+  const details = [];
+
+  for (const [groupName, groupMatches] of Object.entries(groups)) {
+    const isComplete = groupMatches.every((match) => match.actual_home_score !== null && match.actual_away_score !== null);
+    if (!isComplete) {
+      continue;
+    }
+
+    const allCorrect = groupMatches.every((match) => {
+      const prediction = predictionsByMatch.get(match.id);
+      if (!prediction) {
+        return false;
+      }
+      return getPredictedOutcome(prediction) === getMatchOutcome(match.actual_home_score, match.actual_away_score);
+    });
+
+    if (allCorrect) {
+      points += 8;
+      details.push({ groupName, points: 8 });
+    }
+  }
+
+  return { points, details };
 }
 
 function buildTrajectory(sortedRows) {
@@ -669,15 +778,8 @@ export function getLeaderboard() {
       if (result.points === 2) outcomeHits += 1;
     }
 
-    let qualifierPoints = 0;
-    for (const qualifierPrediction of userQualifiers) {
-      const actualTeams = [
-        actualGroupRankMap.get(`1${qualifierPrediction.group_name}`),
-        actualGroupRankMap.get(`2${qualifierPrediction.group_name}`)
-      ].filter(Boolean);
-      if (actualTeams.includes(qualifierPrediction.first_team)) qualifierPoints += 3;
-      if (actualTeams.includes(qualifierPrediction.second_team)) qualifierPoints += 3;
-    }
+    const groupPerfectBonus = scoreGroupPerfectBonuses(matches, userPredictions);
+    const groupPerfectPoints = groupPerfectBonus.points;
 
     let bonusPoints = 0;
     let topScorerHit = 0;
@@ -701,7 +803,7 @@ export function getLeaderboard() {
       officialGroupOrders
     });
     const bracketPoints = bracketProgress.points;
-    const totalPoints = matchPoints + qualifierPoints + bonusPoints + bracketPoints;
+    const totalPoints = matchPoints + groupPerfectPoints + bonusPoints + bracketPoints;
     const identity = getPlayerIdentity(user);
 
     return {
@@ -713,7 +815,9 @@ export function getLeaderboard() {
       totalPoints,
       exactHits,
       outcomeHits,
-      qualifierPoints,
+      qualifierPoints: groupPerfectPoints,
+      groupPerfectPoints,
+      groupPerfectDetails: groupPerfectBonus.details,
       bonusPoints,
       bracketPoints,
       bracketDetails: bracketProgress.details,

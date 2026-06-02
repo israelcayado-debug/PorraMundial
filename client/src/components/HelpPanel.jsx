@@ -20,9 +20,9 @@ export function HelpPanel({ audience = "player", onClose }) {
           <p>Antes del bloqueo cada jugador rellena la fase de grupos, las eliminatorias y el máximo goleador.</p>
           <ul>
             <li>En grupos se elige 1, X o 2 para cada partido.</li>
+            <li>Si hay empate a puntos en un grupo, ordena los empatados con Subir/Bajar.</li>
             <li>En eliminatorias se elige qué selección pasa de ronda.</li>
             <li>El máximo goleador se escribe libremente, sin lista cerrada.</li>
-            <li>Las apuestas se bloquean 24 horas antes del inicio del Mundial.</li>
           </ul>
         </article>
 
@@ -30,20 +30,23 @@ export function HelpPanel({ audience = "player", onClose }) {
           <Shield size={22} />
           <h4>Puntuación</h4>
           <ul>
-            <li>Resultado 1/X/2 acertado en fase de grupos: 2 puntos.</li>
-            <li>Selección acertada en dieciseisavos: 2 puntos.</li>
-            <li>Selección acertada en octavos: 3 puntos.</li>
-            <li>Selección acertada en cuartos: 4 puntos.</li>
-            <li>Selección acertada en semifinales: 5 puntos.</li>
-            <li>Selección acertada en la final o campeón: 10 puntos.</li>
-            <li>Máximo goleador acertado: 8 puntos.</li>
+            <li>Partido acertado de fase de grupos: 2 puntos.</li>
+            <li>Acertar todos los partidos de un mismo grupo: 8 puntos.</li>
+            <li>Equipo acertado en octavos: 5 puntos en su sitio, 3 puntos fuera de sitio.</li>
+            <li>Equipo acertado en cuartos: 6 puntos.</li>
+            <li>Equipo acertado en semifinales: 7 puntos.</li>
+            <li>Equipo acertado en tercer y cuarto puesto: 7 puntos.</li>
+            <li>Equipo acertado finalista: 8 puntos.</li>
+            <li>Acertar tercer clasificado: 8 puntos.</li>
+            <li>Acertar el campeón: 10 puntos.</li>
+            <li>Acertar el máximo goleador: 10 puntos.</li>
           </ul>
         </article>
 
         <article className="help-card">
           <Users size={22} />
           <h4>Empates y desempates</h4>
-          <p>Si hay empate dentro de un grupo, el jugador puede ordenar manualmente los equipos empatados con Subir/Bajar.</p>
+          <p>Si hay empate dentro de un grupo, el jugador fija el orden previsto con Subir/Bajar.</p>
           <ul>
             <li>El administrador hará lo mismo con la clasificación real si hay empate oficial, sorteo o criterio externo.</li>
             <li>Si dos jugadores empatan a puntos, se desempata por campeón, máximo goleador y aciertos por rondas.</li>

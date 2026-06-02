@@ -13,7 +13,7 @@ export const tournamentConfig = {
       label: "Máximo goleador",
       type: "text",
       options: [],
-      points: 8
+      points: 10
     }
   ]
 };

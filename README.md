@@ -29,13 +29,16 @@ El máximo goleador se escribe libremente. Al evaluar el Mundial, el administrad
 
 ## Puntuación
 
-- Resultado 1/X/2 acertado en fase de grupos: 2 puntos.
-- Selección acertada en dieciseisavos: 2 puntos.
-- Selección acertada en octavos: 3 puntos.
-- Selección acertada en cuartos: 4 puntos.
-- Selección acertada en semifinales: 5 puntos.
-- Selección acertada en la final o campeón: 10 puntos.
-- Máximo goleador acertado: 8 puntos.
+- Partido acertado de fase de grupos: 2 puntos.
+- Acertar todos los partidos de un mismo grupo: 8 puntos.
+- Equipo acertado en octavos: 5 puntos en su sitio, 3 puntos fuera de sitio.
+- Equipo acertado en cuartos: 6 puntos.
+- Equipo acertado en semifinales: 7 puntos.
+- Equipo acertado en tercer y cuarto puesto: 7 puntos.
+- Equipo acertado finalista: 8 puntos.
+- Acertar tercer clasificado: 8 puntos.
+- Acertar el campeón: 10 puntos.
+- Acertar el máximo goleador: 10 puntos.
 
 ## Desempates
 
