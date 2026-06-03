@@ -1,5 +1,12 @@
 const basePath = import.meta.env.BASE_URL || "/";
 const storagePrefix = `porra_${basePath.replace(/[^a-z0-9]/gi, "_")}`;
+const tokenKey = `${storagePrefix}_token`;
+const userKey = `${storagePrefix}_user`;
+
+function clearLegacyPersistentSession() {
+  localStorage.removeItem(tokenKey);
+  localStorage.removeItem(userKey);
+}
 
 export function appAsset(path) {
   return `${basePath}${path.replace(/^\/+/, "")}`;
@@ -11,7 +18,8 @@ export function appPath(path) {
 }
 
 export async function api(path, options = {}) {
-  const token = localStorage.getItem(`${storagePrefix}_token`);
+  clearLegacyPersistentSession();
+  const token = sessionStorage.getItem(tokenKey);
   const response = await fetch(appPath(path), {
     headers: {
       "Content-Type": "application/json",
@@ -29,16 +37,19 @@ export async function api(path, options = {}) {
 }
 
 export function saveSession(token, user) {
-  localStorage.setItem(`${storagePrefix}_token`, token);
-  localStorage.setItem(`${storagePrefix}_user`, JSON.stringify(user));
+  clearLegacyPersistentSession();
+  sessionStorage.setItem(tokenKey, token);
+  sessionStorage.setItem(userKey, JSON.stringify(user));
 }
 
 export function clearSession() {
-  localStorage.removeItem(`${storagePrefix}_token`);
-  localStorage.removeItem(`${storagePrefix}_user`);
+  clearLegacyPersistentSession();
+  sessionStorage.removeItem(tokenKey);
+  sessionStorage.removeItem(userKey);
 }
 
 export function loadStoredUser() {
-  const raw = localStorage.getItem(`${storagePrefix}_user`);
+  clearLegacyPersistentSession();
+  const raw = sessionStorage.getItem(userKey);
   return raw ? JSON.parse(raw) : null;
 }
