@@ -44,6 +44,17 @@ export function HelpPanel({ audience = "player", onClose }) {
           </ul>
         </article>
 
+        <article className="help-card help-card--primary">
+          <Trophy size={22} />
+          <h4>Premios</h4>
+          <p>El reparto se calcula sobre el dinero recaudado en la porra.</p>
+          <ul>
+            <li>Primero se apartan 5 € para el último clasificado, que recupera su apuesta.</li>
+            <li>Del dinero restante, el 70 % es para el primer clasificado.</li>
+            <li>Del dinero restante, el 30 % es para el segundo clasificado.</li>
+          </ul>
+        </article>
+
         <article className="help-card">
           <Users size={22} />
           <h4>Empates y desempates</h4>
