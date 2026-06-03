@@ -28,7 +28,7 @@ function getTournamentSettings() {
 }
 
 function getPublicTournamentData() {
-  const teams = db.prepare("SELECT * FROM teams ORDER BY name").all();
+  const teams = db.prepare("SELECT * FROM teams ORDER BY name").all().map(normalizeOfficialTeam);
   const matches = db.prepare("SELECT * FROM matches ORDER BY kickoff_at").all();
   const qualifierGroupsMap = new Map();
 

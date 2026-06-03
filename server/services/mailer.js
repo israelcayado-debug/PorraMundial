@@ -103,7 +103,7 @@ export async function sendAccountDecisionEmail({ to, displayName, status }) {
 
 export async function sendDailyDigestToAllUsers() {
   const leaderboard = getLeaderboard();
-  const users = db.prepare("SELECT id, email, display_name FROM users WHERE status = 'approved'").all();
+  const users = db.prepare("SELECT id, email, display_name FROM users WHERE role = 'player' AND status = 'approved'").all();
 
   for (const user of users) {
     const me = leaderboard.find((entry) => entry.userId === user.id);

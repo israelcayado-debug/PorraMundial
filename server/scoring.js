@@ -737,7 +737,7 @@ function compareLeaderboardRows(a, b) {
 }
 
 export function getLeaderboard() {
-  const users = db.prepare("SELECT id, email, display_name FROM users WHERE status = 'approved' ORDER BY display_name").all();
+  const users = db.prepare("SELECT id, email, display_name FROM users WHERE role = 'player' AND status = 'approved' ORDER BY display_name").all();
   const teams = db.prepare("SELECT * FROM teams").all();
   const matches = db.prepare("SELECT * FROM matches ORDER BY kickoff_at").all();
   const completedMatches = matches.filter((match) => match.actual_home_score !== null && match.actual_away_score !== null);

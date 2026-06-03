@@ -788,19 +788,16 @@ select:disabled {
 }
 
 .flag-badge {
-  background:
-    linear-gradient(90deg, var(--flag-a) 0 33.333%, var(--flag-b) 33.333% 66.666%, var(--flag-c) 66.666% 100%);
-  color: rgba(255, 255, 255, 0.96);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
   font-weight: 950;
   letter-spacing: 0.02em;
-  font-size: 1.25rem;
+  font-size: 2rem;
+  overflow: hidden;
 }
 
 .flag-badge span {
-  padding: 2px 6px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.2);
+  line-height: 1;
 }
 
 .vs {

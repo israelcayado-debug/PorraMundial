@@ -294,12 +294,12 @@ function GroupPredictionBoard({ groupName, matches, predictionsByMatch, teamsByC
               <span className="group-sheet__date">{dayjs(match.kickoff_at).format("DD MMM · HH:mm")}</span>
               <div className="group-sheet__match">
                 <span>
-                  <FlagBadge code={match.home_team} label={home?.name || match.home_team} />
+                  <FlagBadge code={match.home_team} label={home?.name || match.home_team} flag={home?.flag} />
                   {home?.name || match.home_team}
                 </span>
                 <strong>vs</strong>
                 <span>
-                  <FlagBadge code={match.away_team} label={away?.name || match.away_team} />
+                  <FlagBadge code={match.away_team} label={away?.name || match.away_team} flag={away?.flag} />
                   {away?.name || match.away_team}
                 </span>
               </div>
@@ -354,7 +354,7 @@ function GroupPredictionBoard({ groupName, matches, predictionsByMatch, teamsByC
             <div key={`standing-${groupName}-${row.teamCode}`} className={index < 2 ? "group-standings__row qualifies" : "group-standings__row"}>
               <span className="group-standings__team">
                 <strong>{index + 1}</strong>
-                <FlagBadge code={row.teamCode} label={team?.name || row.teamCode} />
+                <FlagBadge code={row.teamCode} label={team?.name || row.teamCode} flag={team?.flag} />
                 {team?.name || row.teamCode}
               </span>
               <strong>{row.points}</strong>
