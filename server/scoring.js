@@ -18,8 +18,8 @@ const BRACKET_STAGE_POINTS = {
   round_of_16: { label: "Equipos en octavos", team: 6, mode: "team" },
   quarterfinals: { label: "Equipos en cuartos", team: 7, mode: "team" },
   semifinals: { label: "Equipos en semifinales", team: 8, mode: "team" },
-  third_place: { label: "Equipos en tercer y cuarto puesto", team: 7, mode: "team" },
-  final: { label: "Finalistas", team: 9, mode: "team" }
+  third_place: { label: "Equipos en tercer y cuarto puesto", team: 9, mode: "team" },
+  final: { label: "Finalistas", team: 10, mode: "team" }
 };
 
 function hashString(value) {
@@ -536,15 +536,15 @@ function scoreBracketProgression({ matches, teams, userPredictions, userQualifie
     const predictedFinalWinner = getResolvedMatchWinner(finalMatch, predictedResolver, predictionsByMatch, "prediction");
     const actualFinalWinner = getResolvedMatchWinner(finalMatch, actualResolver, predictionsByMatch, "actual");
     if (predictedFinalWinner && actualFinalWinner && predictedFinalWinner === actualFinalWinner) {
-      points += 10;
+      points += 12;
       tieBreak.championHit = 1;
       details.push({
         stage: "champion",
         label: "Campeón",
         exactHits: 1,
         elsewhereHits: 0,
-        points: 10,
-        exactPoints: 10,
+        points: 12,
+        exactPoints: 12,
         elsewherePoints: 0
       });
     }
@@ -555,14 +555,14 @@ function scoreBracketProgression({ matches, teams, userPredictions, userQualifie
     const predictedThirdPlaceWinner = getResolvedMatchWinner(thirdPlaceMatch, predictedResolver, predictionsByMatch, "prediction");
     const actualThirdPlaceWinner = getResolvedMatchWinner(thirdPlaceMatch, actualResolver, predictionsByMatch, "actual");
     if (predictedThirdPlaceWinner && actualThirdPlaceWinner && predictedThirdPlaceWinner === actualThirdPlaceWinner) {
-      points += 8;
+      points += 10;
       details.push({
         stage: "third_place_winner",
         label: "Tercer clasificado",
         exactHits: 1,
         elsewhereHits: 0,
-        points: 8,
-        exactPoints: 8,
+        points: 10,
+        exactPoints: 10,
         elsewherePoints: 0
       });
     }

@@ -35,11 +35,11 @@ El máximo goleador se escribe libremente. Al evaluar el Mundial, el administrad
 - Equipo acertado en octavos: 6 puntos.
 - Equipo acertado en cuartos: 7 puntos.
 - Equipo acertado en semifinales: 8 puntos.
-- Equipo acertado en tercer y cuarto puesto: 7 puntos.
-- Equipo acertado finalista: 9 puntos.
-- Acertar tercer clasificado: 8 puntos.
-- Acertar el campeón: 10 puntos.
-- Acertar el máximo goleador: 8 puntos.
+- Equipo acertado en tercer y cuarto puesto: 9 puntos.
+- Equipo acertado finalista: 10 puntos.
+- Acertar tercer clasificado: 10 puntos.
+- Acertar el campeón: 12 puntos.
+- Acertar el máximo goleador: 12 puntos.
 
 ## Desempates
 

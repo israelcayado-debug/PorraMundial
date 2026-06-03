@@ -36,11 +36,11 @@ export function HelpPanel({ audience = "player", onClose }) {
             <li>Equipo acertado en octavos: 6 puntos.</li>
             <li>Equipo acertado en cuartos: 7 puntos.</li>
             <li>Equipo acertado en semifinales: 8 puntos.</li>
-            <li>Equipo acertado en tercer y cuarto puesto: 7 puntos.</li>
-            <li>Equipo acertado finalista: 9 puntos.</li>
-            <li>Acertar tercer clasificado: 8 puntos.</li>
-            <li>Acertar el campeón: 10 puntos.</li>
-            <li>Acertar el máximo goleador: 8 puntos.</li>
+            <li>Equipo acertado en tercer y cuarto puesto: 9 puntos.</li>
+            <li>Equipo acertado finalista: 10 puntos.</li>
+            <li>Acertar tercer clasificado: 10 puntos.</li>
+            <li>Acertar el campeón: 12 puntos.</li>
+            <li>Acertar el máximo goleador: 12 puntos.</li>
           </ul>
         </article>
 
