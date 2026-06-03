@@ -10,14 +10,72 @@ const STAGE_LABELS = {
   final: "Final"
 };
 
+const FLAG_IMAGE_CODES = {
+  ALG: "dz",
+  ARG: "ar",
+  AUS: "au",
+  AUT: "at",
+  BEL: "be",
+  BIH: "ba",
+  BRA: "br",
+  CAN: "ca",
+  CIV: "ci",
+  COD: "cd",
+  COL: "co",
+  CPV: "cv",
+  CRO: "hr",
+  CUW: "cw",
+  CZE: "cz",
+  ECU: "ec",
+  EGY: "eg",
+  ENG: "gb-eng",
+  ESP: "es",
+  FRA: "fr",
+  GER: "de",
+  GHA: "gh",
+  HAI: "ht",
+  IRQ: "iq",
+  IRN: "ir",
+  JOR: "jo",
+  JPN: "jp",
+  KOR: "kr",
+  KSA: "sa",
+  MAR: "ma",
+  MEX: "mx",
+  NED: "nl",
+  NOR: "no",
+  NZL: "nz",
+  PAN: "pa",
+  PAR: "py",
+  POR: "pt",
+  QAT: "qa",
+  RSA: "za",
+  SCO: "gb-sct",
+  SEN: "sn",
+  SUI: "ch",
+  SWE: "se",
+  TUN: "tn",
+  TUR: "tr",
+  URU: "uy",
+  USA: "us",
+  UZB: "uz"
+};
+
 export function FlagBadge({ code, label, flag }) {
+  const imageCode = FLAG_IMAGE_CODES[code];
+  const flagUrl = imageCode ? `https://flagcdn.com/${imageCode}.svg` : null;
+
   return (
     <span
       className="flag-badge"
       aria-label={`Bandera de ${label}`}
       title={label}
     >
-      <span>{flag || code?.slice(0, 2) || "?"}</span>
+      {flagUrl ? (
+        <img src={flagUrl} alt="" loading="lazy" />
+      ) : (
+        <span>{flag || code?.slice(0, 2) || "?"}</span>
+      )}
     </span>
   );
 }
