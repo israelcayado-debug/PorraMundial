@@ -437,7 +437,7 @@ export function PlayerPage({
   }, [tournament.matches]);
 
   const [activeGroupTab, setActiveGroupTab] = useState(groupTabs[0]?.key || "A");
-  const [activeKnockoutTab, setActiveKnockoutTab] = useState("round_of_16");
+  const [activeKnockoutTab, setActiveKnockoutTab] = useState("round_of_32");
   const [activePlayTab, setActivePlayTab] = useState("groups");
   const [showHelp, setShowHelp] = useState(false);
   const [bonusSaveStatus, setBonusSaveStatus] = useState({});
