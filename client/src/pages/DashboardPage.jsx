@@ -5,6 +5,7 @@ import { Trophy, Mail, Shield, Target, Lock, Settings, Users, SendHorizontal, Ca
 import { LeaderboardTable } from "../components/LeaderboardTable.jsx";
 import { MatchCard } from "../components/MatchCard.jsx";
 import { StatCard } from "../components/StatCard.jsx";
+import { ScorerInput } from "../components/ScorerInput.jsx";
 
 const stageOptions = [
   { value: "groups", label: "Fase de grupos" },
@@ -356,11 +357,10 @@ export function DashboardPage({
               >
                 <span className="pill">{question.points} pts</span>
                 <h4>{question.label}</h4>
-                <select name="answer" defaultValue={bonusByKey[question.key] || question.options[0]} disabled={betsLocked}>
-                  {question.options.map((option) => (
-                    <option key={`${question.key}-${option}`} value={option}>{option}</option>
-                  ))}
-                </select>
+                <ScorerInput
+                  value={bonusByKey[question.key] || ""}
+                  disabled={betsLocked}
+                />
                 <button type="submit" disabled={betsLocked}>{betsLocked ? "Cerrado" : "Guardar bonus"}</button>
               </form>
             ))}
