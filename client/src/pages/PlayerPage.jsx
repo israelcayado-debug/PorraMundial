@@ -439,6 +439,7 @@ export function PlayerPage({
   const [activeKnockoutTab, setActiveKnockoutTab] = useState("round_of_16");
   const [activePlayTab, setActivePlayTab] = useState("groups");
   const [showHelp, setShowHelp] = useState(false);
+  const [bonusSaveStatus, setBonusSaveStatus] = useState({});
 
   useEffect(() => {
     if (groupTabs.length > 0 && !groupTabs.some((tab) => tab.key === activeGroupTab)) {
@@ -806,10 +807,19 @@ export function PlayerPage({
                 <form
                   key={question.key}
                   className="bonus-card"
-                  onSubmit={(event) => {
+                  onSubmit={async (event) => {
                     event.preventDefault();
                     const form = new FormData(event.currentTarget);
-                    onSaveBonus(question.key, form.get("answer"));
+                    setBonusSaveStatus((current) => ({ ...current, [question.key]: "Guardando..." }));
+                    try {
+                      await onSaveBonus(question.key, form.get("answer"));
+                      setBonusSaveStatus((current) => ({ ...current, [question.key]: "Goleador guardado" }));
+                    } catch (err) {
+                      setBonusSaveStatus((current) => ({
+                        ...current,
+                        [question.key]: err.message || "No se pudo guardar el goleador"
+                      }));
+                    }
                   }}
                 >
                   <span className="pill">{question.points} pts</span>
@@ -819,6 +829,9 @@ export function PlayerPage({
                     disabled={betsLocked}
                   />
                   <button type="submit" disabled={betsLocked}>{betsLocked ? "Cerrado" : "Guardar goleador"}</button>
+                  {bonusSaveStatus[question.key] && (
+                    <small className="scorer-input__status">{bonusSaveStatus[question.key]}</small>
+                  )}
                 </form>
               ))}
             </div>
