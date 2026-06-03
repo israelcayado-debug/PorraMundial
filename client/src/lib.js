@@ -8,6 +8,15 @@ function clearLegacyPersistentSession() {
   localStorage.removeItem(userKey);
 }
 
+function clearBrowserSession() {
+  sessionStorage.removeItem(tokenKey);
+  sessionStorage.removeItem(userKey);
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", clearBrowserSession);
+}
+
 export function appAsset(path) {
   return `${basePath}${path.replace(/^\/+/, "")}`;
 }
@@ -44,8 +53,7 @@ export function saveSession(token, user) {
 
 export function clearSession() {
   clearLegacyPersistentSession();
-  sessionStorage.removeItem(tokenKey);
-  sessionStorage.removeItem(userKey);
+  clearBrowserSession();
 }
 
 export function loadStoredUser() {
