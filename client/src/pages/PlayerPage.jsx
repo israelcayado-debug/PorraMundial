@@ -14,6 +14,7 @@ const knockoutTabs = [
   { key: "round_of_16", label: "Octavos" },
   { key: "quarterfinals", label: "Cuartos" },
   { key: "semifinals", label: "Semifinales" },
+  { key: "third_place", label: "3º puesto" },
   { key: "final", label: "Final" }
 ];
 
