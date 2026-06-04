@@ -139,15 +139,6 @@ if (countRow("stage_qualifiers") === 0) {
   insertMany(standingsPredictions);
 }
 
-if (countRow("bonus_results") === 0) {
-  const defaults = [
-    { question_key: "topScorer", correct_value: "Lamine Yamal" }
-  ];
-  const stmt = db.prepare("INSERT INTO bonus_results (question_key, correct_value) VALUES (@question_key, @correct_value)");
-  const insertMany = db.transaction((rows) => rows.forEach((row) => stmt.run(row)));
-  insertMany(defaults);
-}
-
 if (countRow("users") === 0) {
   const passwordHash = bcrypt.hashSync("demo1234", 10);
   db.prepare("INSERT INTO users (email, password_hash, display_name, role) VALUES (?, ?, ?, ?)").run(
