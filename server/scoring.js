@@ -884,7 +884,7 @@ export function getDashboardForUser(userId) {
 
   return {
     me,
-    leaderboard: leaderboard.slice(0, 8),
+    leaderboard,
     upcomingMatches,
     recentResults: buildRecentResults(userId),
     stats: {

@@ -1,6 +1,6 @@
 export function LeaderboardTable({ rows, currentUserId }) {
   return (
-    <div className="table-shell">
+    <div className="table-shell table-shell--leaderboard">
       <table className="leaderboard">
         <thead>
           <tr>

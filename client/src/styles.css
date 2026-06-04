@@ -460,6 +460,19 @@ select:disabled {
   overflow-x: auto;
 }
 
+.table-shell--leaderboard {
+  max-height: 760px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.table-shell--leaderboard thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--panel);
+}
+
 .leaderboard {
   width: 100%;
   border-collapse: collapse;
