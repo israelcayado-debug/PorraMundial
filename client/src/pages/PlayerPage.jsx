@@ -1,7 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
-import { Trophy, Mail, Shield, Target, Lock, Flame, CheckCircle2, Radar, TrendingUp } from "lucide-react";
+import { Trophy, Shield, Target, Lock, Flame, CheckCircle2, Radar, TrendingUp } from "lucide-react";
 import { LeaderboardTable } from "../components/LeaderboardTable.jsx";
 import { FlagBadge, MatchCard } from "../components/MatchCard.jsx";
 import { HelpPanel } from "../components/HelpPanel.jsx";
@@ -732,21 +732,6 @@ export function PlayerPage({
                 </small>
               </article>
             ))}
-          </div>
-        </div>
-
-        <div className="panel">
-          <div className="panel__title">
-            <Mail size={18} />
-            <h3>Correo diario</h3>
-          </div>
-          <p className="muted">
-            El sistema enviará resúmenes diarios de clasificación durante el Mundial. Tu parte aquí es dejar tus apuestas bien cerradas antes del bloqueo.
-          </p>
-          <div className="mail-preview">
-            <span>Resumen de posición</span>
-            <span>Evolución de puntos</span>
-            <span>Top 10 del día</span>
           </div>
         </div>
       </section>
