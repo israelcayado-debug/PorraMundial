@@ -736,6 +736,11 @@ function compareLeaderboardRows(a, b) {
     || b.tieBreak.groupOutcomeHits - a.tieBreak.groupOutcomeHits;
 }
 
+function compareLeaderboardRowsWithProvisionalTieBreak(a, b) {
+  return compareLeaderboardRows(a, b)
+    || a.displayName.localeCompare(b.displayName);
+}
+
 export function getLeaderboard() {
   const users = db.prepare("SELECT id, email, display_name FROM users WHERE role = 'player' AND status = 'approved' ORDER BY display_name").all();
   const teams = db.prepare("SELECT * FROM teams").all();
@@ -836,15 +841,15 @@ export function getLeaderboard() {
     };
   });
 
-  return leaderboard.sort((a, b) => compareLeaderboardRows(a, b) || a.displayName.localeCompare(b.displayName))
+  return leaderboard.sort(compareLeaderboardRowsWithProvisionalTieBreak)
     .map((entry, index, rows) => {
       const previousRank = entry.trajectory.at(-2)?.rank ?? null;
-      const tiedWithPrevious = index > 0 && compareLeaderboardRows(entry, rows[index - 1]) === 0;
-      const rank = tiedWithPrevious ? rows[index - 1].rank : index + 1;
+      const rank = index + 1;
       return {
         ...entry,
         rank,
-        prizeShared: tiedWithPrevious || (rows[index + 1] ? compareLeaderboardRows(entry, rows[index + 1]) === 0 : false),
+        prizeShared: (index > 0 && compareLeaderboardRows(entry, rows[index - 1]) === 0)
+          || (rows[index + 1] ? compareLeaderboardRows(entry, rows[index + 1]) === 0 : false),
         previousRank,
         rankDelta: previousRank ? previousRank - rank : 0,
         leadGap: index === 0 ? 0 : rows[0].totalPoints - entry.totalPoints

@@ -513,6 +513,10 @@ select:disabled {
   gap: 3px;
 }
 
+.leaderboard-player div span {
+  display: none;
+}
+
 .player-avatar {
   --player-color: var(--cyan);
   width: 38px;

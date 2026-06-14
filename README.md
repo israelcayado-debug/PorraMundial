@@ -57,6 +57,10 @@ Si dos participantes empatan a puntos en la clasificación general, se desempata
 8. Más aciertos en fase de grupos.
 9. Si siguen empatados, comparten posición y premio.
 
+La tabla muestra siempre una clasificacion provisional con un numero de puesto por jugador. Cuando todos los criterios anteriores siguen empatados, se usa el nombre del jugador como ultimo criterio visual para ordenar la lista, sin modificar puntos, premios ni datos guardados.
+
+En la vista de clasificacion se muestra el total y las columnas principales. El desglose secundario de puntos de cuadro, grupos y bonus se mantiene en los datos de la API, pero se oculta en la tabla para mejorar la lectura en movil.
+
 ## Arranque local
 
 Instala dependencias:
