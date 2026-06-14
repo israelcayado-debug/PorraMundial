@@ -741,6 +741,18 @@ function compareLeaderboardRowsWithProvisionalTieBreak(a, b) {
     || a.displayName.localeCompare(b.displayName);
 }
 
+function getPreviousMatchdayRank(trajectory) {
+  const lastEntry = trajectory.at(-1);
+  if (!lastEntry) {
+    return null;
+  }
+
+  return trajectory
+    .slice()
+    .reverse()
+    .find((entry) => entry.date !== lastEntry.date)?.rank ?? null;
+}
+
 export function getLeaderboard() {
   const users = db.prepare("SELECT id, email, display_name FROM users WHERE role = 'player' AND status = 'approved' ORDER BY display_name").all();
   const teams = db.prepare("SELECT * FROM teams").all();
@@ -843,7 +855,7 @@ export function getLeaderboard() {
 
   return leaderboard.sort(compareLeaderboardRowsWithProvisionalTieBreak)
     .map((entry, index, rows) => {
-      const previousRank = entry.trajectory.at(-2)?.rank ?? null;
+      const previousRank = getPreviousMatchdayRank(entry.trajectory);
       const rank = index + 1;
       return {
         ...entry,

@@ -59,7 +59,7 @@ Si dos participantes empatan a puntos en la clasificación general, se desempata
 
 La tabla muestra siempre una clasificacion provisional con un numero de puesto por jugador. Cuando todos los criterios anteriores siguen empatados, se usa el nombre del jugador como ultimo criterio visual para ordenar la lista, sin modificar puntos, premios ni datos guardados.
 
-En la vista de clasificacion se muestra el total y las columnas principales. El desglose secundario de puntos de cuadro, grupos y bonus se mantiene en los datos de la API, pero se oculta en la tabla para mejorar la lectura en movil.
+En la vista de clasificacion se muestran cuatro columnas: puesto, jugador, puntos y cambio de puesto respecto a la jornada anterior disponible. El desglose secundario de puntos de cuadro, grupos y bonus se mantiene en los datos de la API, pero no se muestra en la tabla para mejorar la lectura en movil.
 
 ## Arranque local
 
