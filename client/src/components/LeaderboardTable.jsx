@@ -23,7 +23,7 @@ export function LeaderboardTable({ rows, currentUserId }) {
             <th>#</th>
             <th>Jugador</th>
             <th>Puntos</th>
-            <th>Jornada</th>
+            <th>Cambio</th>
           </tr>
         </thead>
         <tbody>
