@@ -475,6 +475,7 @@ select:disabled {
 
 .leaderboard {
   width: 100%;
+  min-width: 620px;
   border-collapse: collapse;
 }
 
@@ -527,7 +528,9 @@ select:disabled {
 }
 
 .leaderboard-player strong {
-  overflow-wrap: anywhere;
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .leaderboard-player div span {
@@ -1645,8 +1648,24 @@ select:disabled {
     font-size: 0.9rem;
   }
 
+  .leaderboard {
+    min-width: 560px;
+  }
+
+  .leaderboard th:first-child,
+  .leaderboard td:first-child {
+    width: 72px;
+  }
+
+  .leaderboard th:nth-child(3),
+  .leaderboard td:nth-child(3),
+  .leaderboard th:nth-child(4),
+  .leaderboard td:nth-child(4) {
+    width: 86px;
+  }
+
   .leaderboard-player {
-    min-width: 0;
+    min-width: 190px;
   }
 
   .hero-panel__headline {
