@@ -22,6 +22,39 @@ const BRACKET_STAGE_POINTS = {
   final: { label: "Finalistas", team: 10, mode: "team" }
 };
 
+function getBracketToken(match, side, mode) {
+  return mode === "actual"
+    ? match[`actual_${side}_team`] || match[`${side}_team`]
+    : match[`${side}_team`];
+}
+
+function createActualParticipantResolver(matches, teams) {
+  const matchesByNumber = new Map(matches.filter((match) => match.match_number).map((match) => [match.match_number, match]));
+  const teamCodes = new Set(teams.map((team) => team.code));
+  const cache = new Map();
+
+  const resolve = (token, contextMatch) => {
+    if (!token) return null;
+    if (teamCodes.has(token)) return token;
+    const cacheKey = `${contextMatch?.match_number || contextMatch?.id}:${token}`;
+    if (cache.has(cacheKey)) return cache.get(cacheKey);
+
+    const sourceToken = /^([WL])(\d+)$/.exec(token);
+    if (!sourceToken) return null;
+    const previousMatch = matchesByNumber.get(Number(sourceToken[2]));
+    if (!previousMatch) return null;
+    const home = resolve(getBracketToken(previousMatch, "home", "actual"), previousMatch);
+    const away = resolve(getBracketToken(previousMatch, "away", "actual"), previousMatch);
+    const resolved = sourceToken[1] === "W"
+      ? getWinnerCode(previousMatch.actual_home_score, previousMatch.actual_away_score, home, away)
+      : getLoserCode(previousMatch.actual_home_score, previousMatch.actual_away_score, home, away);
+    cache.set(cacheKey, resolved);
+    return resolved;
+  };
+
+  return (match, side) => resolve(getBracketToken(match, side, "actual"), match);
+}
+
 function hashString(value) {
   return [...value].reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) | 0, 0);
 }
@@ -339,8 +372,8 @@ function resolveBracketToken(token, contextMatch, { matchesByNumber, predictions
         return null;
       }
 
-      const homeCode = resolve(previousMatch.home_team, previousMatch);
-      const awayCode = resolve(previousMatch.away_team, previousMatch);
+      const homeCode = resolve(getBracketToken(previousMatch, "home", mode), previousMatch);
+      const awayCode = resolve(getBracketToken(previousMatch, "away", mode), previousMatch);
       const source = mode === "prediction" ? predictionsByMatch.get(previousMatch.id) : previousMatch;
       const homeScore = mode === "prediction" ? source?.predicted_home_score : source?.actual_home_score;
       const awayScore = mode === "prediction" ? source?.predicted_away_score : source?.actual_away_score;
@@ -357,8 +390,8 @@ function resolveBracketToken(token, contextMatch, { matchesByNumber, predictions
         return null;
       }
 
-      const homeCode = resolve(previousMatch.home_team, previousMatch);
-      const awayCode = resolve(previousMatch.away_team, previousMatch);
+      const homeCode = resolve(getBracketToken(previousMatch, "home", mode), previousMatch);
+      const awayCode = resolve(getBracketToken(previousMatch, "away", mode), previousMatch);
       const source = mode === "prediction" ? predictionsByMatch.get(previousMatch.id) : previousMatch;
       const homeScore = mode === "prediction" ? source?.predicted_home_score : source?.actual_home_score;
       const awayScore = mode === "prediction" ? source?.predicted_away_score : source?.actual_away_score;
@@ -397,17 +430,17 @@ function buildThirdPlaceAssignments(matches, groupRankMap) {
   return assignments;
 }
 
-function buildStageSlots(stage, matches, resolver) {
+function buildStageSlots(stage, matches, resolver, mode = "prediction") {
   return matches
     .filter((match) => match.stage === stage)
     .flatMap((match) => [
       {
         slot: `${match.match_number || match.id}:home`,
-        teamCode: resolver(match.home_team, match)
+        teamCode: resolver(getBracketToken(match, "home", mode), match)
       },
       {
         slot: `${match.match_number || match.id}:away`,
-        teamCode: resolver(match.away_team, match)
+        teamCode: resolver(getBracketToken(match, "away", mode), match)
       }
     ])
     .filter((slot) => Boolean(slot.teamCode));
@@ -453,15 +486,22 @@ function getResolvedMatchWinner(match, resolver, predictionsByMatch, mode) {
     return null;
   }
 
-  const resolvedHome = resolver(match.home_team, match);
-  const resolvedAway = resolver(match.away_team, match);
+  const resolvedHome = resolver(getBracketToken(match, "home", mode), match);
+  const resolvedAway = resolver(getBracketToken(match, "away", mode), match);
   const source = mode === "prediction" ? predictionsByMatch.get(match.id) : match;
   const homeScore = mode === "prediction" ? source?.predicted_home_score : source?.actual_home_score;
   const awayScore = mode === "prediction" ? source?.predicted_away_score : source?.actual_away_score;
   return getWinnerCode(homeScore ?? null, awayScore ?? null, resolvedHome, resolvedAway);
 }
 
-function scoreBracketProgression({ matches, teams, userPredictions, userQualifiers, userGroupOrders = [], actualQualifiers, officialGroupOrders = [] }) {
+function buildStageWinners(stage, matches, resolver, predictionsByMatch, mode) {
+  return matches
+    .filter((match) => match.stage === stage)
+    .map((match) => getResolvedMatchWinner(match, resolver, predictionsByMatch, mode))
+    .filter(Boolean);
+}
+
+export function scoreBracketProgression({ matches, teams, userPredictions, userQualifiers, userGroupOrders = [], actualQualifiers, officialGroupOrders = [] }) {
   const teamCodes = new Set(teams.map((team) => team.code));
   const matchesByNumber = new Map(matches.filter((match) => match.match_number).map((match) => [match.match_number, match]));
   const predictionsByMatch = new Map(userPredictions.map((prediction) => [prediction.match_id, prediction]));
@@ -512,8 +552,8 @@ function scoreBracketProgression({ matches, teams, userPredictions, userQualifie
   };
 
   for (const [stage, config] of Object.entries(BRACKET_STAGE_POINTS)) {
-    const predictedSlots = buildStageSlots(stage, matches, predictedResolver);
-    const actualSlots = buildStageSlots(stage, matches, actualResolver);
+    const predictedSlots = buildStageSlots(stage, matches, predictedResolver, "prediction");
+    const actualSlots = buildStageSlots(stage, matches, actualResolver, "actual");
     const stageScore = config.mode === "slot"
       ? scoreStageBySlot(predictedSlots, actualSlots, config)
       : scoreStageByTeam(predictedSlots, actualSlots, config.team);
@@ -538,15 +578,7 @@ function scoreBracketProgression({ matches, teams, userPredictions, userQualifie
     if (predictedFinalWinner && actualFinalWinner && predictedFinalWinner === actualFinalWinner) {
       points += 12;
       tieBreak.championHit = 1;
-      details.push({
-        stage: "champion",
-        label: "Campeón",
-        exactHits: 1,
-        elsewhereHits: 0,
-        points: 12,
-        exactPoints: 12,
-        elsewherePoints: 0
-      });
+      details.push({ stage: "champion", label: "Campeón", exactHits: 1, elsewhereHits: 0, points: 12, exactPoints: 12, elsewherePoints: 0 });
     }
   }
 
@@ -568,11 +600,14 @@ function scoreBracketProgression({ matches, teams, userPredictions, userQualifie
     }
   }
 
-  tieBreak.finalTeamHits = countSharedTeams(buildStageSlots("final", matches, predictedResolver), buildStageSlots("final", matches, actualResolver));
-  tieBreak.semifinalTeamHits = countSharedTeams(buildStageSlots("semifinals", matches, predictedResolver), buildStageSlots("semifinals", matches, actualResolver));
-  tieBreak.quarterfinalTeamHits = countSharedTeams(buildStageSlots("quarterfinals", matches, predictedResolver), buildStageSlots("quarterfinals", matches, actualResolver));
-  tieBreak.roundOf16TeamHits = countSharedTeams(buildStageSlots("round_of_16", matches, predictedResolver), buildStageSlots("round_of_16", matches, actualResolver));
-  tieBreak.roundOf32TeamHits = countSharedTeams(buildStageSlots("round_of_32", matches, predictedResolver), buildStageSlots("round_of_32", matches, actualResolver));
+  tieBreak.finalTeamHits = countSharedTeams(buildStageSlots("final", matches, predictedResolver), buildStageSlots("final", matches, actualResolver, "actual"));
+  tieBreak.semifinalTeamHits = countSharedTeams(buildStageSlots("semifinals", matches, predictedResolver), buildStageSlots("semifinals", matches, actualResolver, "actual"));
+  tieBreak.quarterfinalTeamHits = countSharedTeams(buildStageSlots("quarterfinals", matches, predictedResolver), buildStageSlots("quarterfinals", matches, actualResolver, "actual"));
+  tieBreak.roundOf16TeamHits = countSharedTeams(buildStageSlots("round_of_16", matches, predictedResolver), buildStageSlots("round_of_16", matches, actualResolver, "actual"));
+  tieBreak.roundOf32TeamHits = countSharedTeams(
+    buildStageSlots("round_of_32", matches, predictedResolver, "prediction"),
+    buildStageSlots("round_of_32", matches, actualResolver, "actual")
+  );
 
   return { points, details, tieBreak };
 }
@@ -625,6 +660,17 @@ function scoreGroupPerfectBonuses(matches, userPredictions) {
   return { points, details };
 }
 
+function isGroupPerfect(groupMatches, userPredictions) {
+  const predictionsByMatch = new Map(userPredictions.map((prediction) => [prediction.match_id, prediction]));
+  return groupMatches.every((match) => {
+    const prediction = predictionsByMatch.get(match.id);
+    if (!prediction) {
+      return false;
+    }
+    return getPredictedOutcome(prediction) === getMatchOutcome(match.actual_home_score, match.actual_away_score);
+  });
+}
+
 function buildTrajectory(sortedRows) {
   return sortedRows.map((entry, index) => ({
     date: dayjs(entry.kickoff_at).format("DD MMM"),
@@ -633,24 +679,39 @@ function buildTrajectory(sortedRows) {
   }));
 }
 
-function buildRankingHistory(users, completedMatches, predictionsByUser) {
+function buildRankingHistory(users, matches, completedMatches, predictionsByUser, teams) {
   const totalsByUser = new Map(users.map((user) => [user.id, { total: 0, exactHits: 0, lastPoints: 0 }]));
   const historyByUser = new Map(users.map((user) => [user.id, []]));
+  const resolveActualParticipant = createActualParticipantResolver(matches, teams);
+  const groupFinalMatches = new Map();
+  const groups = Object.groupBy(matches.filter((match) => match.stage === "groups" && match.group_name), ({ group_name }) => group_name);
+
+  for (const [groupName, groupMatches] of Object.entries(groups)) {
+    const isComplete = groupMatches.every((match) => match.actual_home_score !== null && match.actual_away_score !== null);
+    if (isComplete) {
+      groupFinalMatches.set(groupMatches.at(-1).id, { groupName, groupMatches });
+    }
+  }
 
   for (const match of completedMatches) {
+    const completedGroup = groupFinalMatches.get(match.id);
+
     for (const user of users) {
       const current = totalsByUser.get(user.id);
       current.lastPoints = 0;
       const prediction = (predictionsByUser[user.id] ?? []).find((item) => item.match_id === match.id);
-      if (!prediction) {
-        continue;
+      if (prediction) {
+        const score = scorePrediction(prediction, match);
+        current.total += score.points;
+        current.lastPoints = score.points;
+        if (score.points === 5) {
+          current.exactHits += 1;
+        }
       }
 
-      const score = scorePrediction(prediction, match);
-      current.total += score.points;
-      current.lastPoints = score.points;
-      if (score.points === 5) {
-        current.exactHits += 1;
+      if (completedGroup && isGroupPerfect(completedGroup.groupMatches, predictionsByUser[user.id] ?? [])) {
+        current.total += 8;
+        current.lastPoints += 8;
       }
     }
 
@@ -669,8 +730,8 @@ function buildRankingHistory(users, completedMatches, predictionsByUser) {
       historyByUser.get(entry.userId).push({
         date: dayjs(match.kickoff_at).format("DD MMM"),
         matchNumber: match.match_number,
-        homeTeam: match.home_team,
-        awayTeam: match.away_team,
+        homeTeam: match.stage === "groups" ? match.home_team : resolveActualParticipant(match, "home"),
+        awayTeam: match.stage === "groups" ? match.away_team : resolveActualParticipant(match, "away"),
         matchPoints: entry.matchPoints,
         total: entry.total,
         rank: entry.rank
@@ -682,6 +743,10 @@ function buildRankingHistory(users, completedMatches, predictionsByUser) {
 }
 
 function buildRecentResults(userId) {
+  const allMatches = db.prepare("SELECT * FROM matches ORDER BY kickoff_at").all();
+  const teams = db.prepare("SELECT * FROM teams").all();
+  const matchesById = new Map(allMatches.map((match) => [match.id, match]));
+  const resolveActualParticipant = createActualParticipantResolver(allMatches, teams);
   const rows = db.prepare(`
     SELECT
       m.id AS match_id,
@@ -690,6 +755,8 @@ function buildRecentResults(userId) {
       m.kickoff_at,
       m.home_team,
       m.away_team,
+      m.actual_home_team,
+      m.actual_away_team,
       m.actual_home_score,
       m.actual_away_score,
       p.predicted_home_score,
@@ -704,14 +771,23 @@ function buildRecentResults(userId) {
 
   return rows.map((row) => {
     const score = scorePrediction(row, row);
+    const isKnockout = row.stage !== "groups";
+    const fullMatch = matchesById.get(row.match_id) || row;
+    const officialHomeTeam = isKnockout ? resolveActualParticipant(fullMatch, "home") : row.home_team;
+    const officialAwayTeam = isKnockout ? resolveActualParticipant(fullMatch, "away") : row.away_team;
+    const qualifiedTeam = isKnockout
+      ? getWinnerCode(row.actual_home_score, row.actual_away_score, officialHomeTeam, officialAwayTeam)
+      : null;
     return {
       matchId: row.match_id,
       matchNumber: row.match_number,
       stage: row.stage,
       stageLabel: STAGE_LABELS[row.stage] ?? row.stage,
       kickoffAt: row.kickoff_at,
-      homeTeam: row.home_team,
-      awayTeam: row.away_team,
+      homeTeam: officialHomeTeam,
+      awayTeam: officialAwayTeam,
+      isKnockout,
+      qualifiedTeam,
       predictedHomeScore: row.predicted_home_score,
       predictedAwayScore: row.predicted_away_score,
       actualHomeScore: row.actual_home_score,
@@ -772,7 +848,7 @@ export function getLeaderboard() {
   const bonusByUser = Object.groupBy(bonusAnswers, ({ user_id }) => user_id);
   const actualGroupRankMap = buildActualGroupRankMap([], matches, officialGroupOrders);
   const bonusResultsMap = Object.fromEntries(bonusResults.map((item) => [item.question_key, item.correct_value]));
-  const rankingHistoryByUser = buildRankingHistory(users, completedMatches, predictionsByUser);
+  const rankingHistoryByUser = buildRankingHistory(users, matches, completedMatches, predictionsByUser, teams);
 
   const leaderboard = users.map((user) => {
     const userPredictions = predictionsByUser[user.id] ?? [];
@@ -869,9 +945,55 @@ export function getLeaderboard() {
     });
 }
 
+function buildKnockoutHistoryPoints(userId) {
+  const matches = db.prepare("SELECT * FROM matches ORDER BY kickoff_at").all();
+  const teams = db.prepare("SELECT * FROM teams").all();
+  const userPredictions = db.prepare("SELECT * FROM predictions WHERE user_id = ?").all(userId);
+  const userQualifiers = db.prepare("SELECT * FROM user_qualifier_predictions WHERE user_id = ?").all(userId);
+  const userGroupOrders = db.prepare("SELECT * FROM user_group_order_predictions WHERE user_id = ?").all(userId);
+  const actualQualifiers = db.prepare("SELECT * FROM stage_qualifiers").all();
+  const officialGroupOrders = db.prepare("SELECT * FROM official_group_order").all();
+  const snapshot = matches.map((match) => match.stage === "groups" ? { ...match } : { ...match, actual_home_score: null, actual_away_score: null });
+  const scoreSnapshot = () => scoreBracketProgression({ matches: snapshot, teams, userPredictions, userQualifiers, userGroupOrders, actualQualifiers, officialGroupOrders }).points;
+  let previousPoints = scoreSnapshot();
+  let cumulativePoints = 0;
+  const pointsByMatch = new Map();
+  const cumulativeByMatch = new Map();
+
+  for (const completed of matches.filter((match) => match.stage !== "groups" && match.actual_home_score !== null && match.actual_away_score !== null)) {
+    const match = snapshot.find((item) => item.id === completed.id);
+    match.actual_home_score = completed.actual_home_score;
+    match.actual_away_score = completed.actual_away_score;
+    const nextPoints = scoreSnapshot();
+    const earned = nextPoints - previousPoints;
+    cumulativePoints += earned;
+    pointsByMatch.set(completed.match_number, earned);
+    cumulativeByMatch.set(completed.match_number, cumulativePoints);
+    previousPoints = nextPoints;
+  }
+
+  return { basePoints: scoreSnapshot() - cumulativePoints, pointsByMatch, cumulativeByMatch, matches };
+}
+
 export function getDashboardForUser(userId) {
   const leaderboard = getLeaderboard();
-  const me = leaderboard.find((item) => item.userId === userId);
+  const leaderboardMe = leaderboard.find((item) => item.userId === userId);
+  const knockoutHistory = buildKnockoutHistoryPoints(userId);
+  const matchesByNumber = new Map(knockoutHistory.matches.map((match) => [match.match_number, match]));
+  const me = leaderboardMe ? {
+    ...leaderboardMe,
+    trajectory: leaderboardMe.trajectory.map((entry) => {
+      const match = matchesByNumber.get(entry.matchNumber);
+      if (!match || match.stage === "groups") {
+        return entry;
+      }
+      return {
+        ...entry,
+        matchPoints: knockoutHistory.pointsByMatch.get(entry.matchNumber) ?? 0,
+        total: entry.total + knockoutHistory.basePoints + (knockoutHistory.cumulativeByMatch.get(entry.matchNumber) ?? 0)
+      };
+    })
+  } : null;
   const upcomingMatches = db.prepare(`
     SELECT *
     FROM matches

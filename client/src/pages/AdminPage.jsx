@@ -642,8 +642,8 @@ export function AdminPage({
           return null;
         }
 
-        const resolvedHome = resolve(previousMatch.home_team, previousMatch);
-        const resolvedAway = resolve(previousMatch.away_team, previousMatch);
+        const resolvedHome = resolve(previousMatch.actual_home_team || previousMatch.home_team, previousMatch);
+        const resolvedAway = resolve(previousMatch.actual_away_team || previousMatch.away_team, previousMatch);
         const resolved = getActualWinner(previousMatch, resolvedHome, resolvedAway);
         cache.set(cacheKey, resolved || null);
         return resolved || null;
@@ -675,20 +675,24 @@ export function AdminPage({
       return match;
     }
 
-    const resolvedHome = resolveActualTokenToCode(match.home_team, match);
-    const resolvedAway = resolveActualTokenToCode(match.away_team, match);
+    const actualHomeToken = match.actual_home_team || match.home_team;
+    const actualAwayToken = match.actual_away_team || match.away_team;
+    const resolvedHome = resolveActualTokenToCode(actualHomeToken, match);
+    const resolvedAway = resolveActualTokenToCode(actualAwayToken, match);
     const pendingSources = [
-      resolvedHome ? null : getPendingSource(match.home_team),
-      resolvedAway ? null : getPendingSource(match.away_team)
+      resolvedHome ? null : getPendingSource(actualHomeToken),
+      resolvedAway ? null : getPendingSource(actualAwayToken)
     ].filter(Boolean);
 
     return {
       ...match,
+      home_team: actualHomeToken,
+      away_team: actualAwayToken,
       pendingReason: pendingSources.length > 0 ? `Se rellenará al cerrar ${pendingSources.join(" y ")}` : null,
       participantLabels: {
         ...(resolvedHome && teamsByCode[resolvedHome]
           ? {
-              [match.home_team]: {
+              [actualHomeToken]: {
                 code: resolvedHome,
                 flag: teamsByCode[resolvedHome].flag,
                 name: teamsByCode[resolvedHome].name
@@ -697,7 +701,7 @@ export function AdminPage({
           : {}),
         ...(resolvedAway && teamsByCode[resolvedAway]
           ? {
-              [match.away_team]: {
+              [actualAwayToken]: {
                 code: resolvedAway,
                 flag: teamsByCode[resolvedAway].flag,
                 name: teamsByCode[resolvedAway].name

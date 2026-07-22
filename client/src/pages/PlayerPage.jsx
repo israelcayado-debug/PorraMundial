@@ -665,18 +665,24 @@ export function PlayerPage({
           {recentResults.length > 0 ? (
             <div className="results-feed">
               {recentResults.map((item) => (
-                <article key={`result-${item.matchId}`} className={`result-card result-card--${item.points > 0 ? "hit" : "miss"}`}>
+                <article key={`result-${item.matchId}`} className={`result-card ${item.isKnockout ? "" : `result-card--${item.points > 0 ? "hit" : "miss"}`}`}>
                   <div className="result-card__head">
                     <span className="pill">{item.stageLabel}</span>
-                    <strong>{item.points} pts</strong>
+                    {!item.isKnockout && <strong>{item.points} pts</strong>}
                   </div>
                   <h4>
                     {teamsByCode[item.homeTeam]?.flag || ""} {teamsByCode[item.homeTeam]?.name || item.homeTeam} vs {teamsByCode[item.awayTeam]?.flag || ""} {teamsByCode[item.awayTeam]?.name || item.awayTeam}
                   </h4>
-                  <p>
-                    Tu apuesta: {item.predictedOutcome} · Resultado oficial: {item.actualOutcome}
-                  </p>
-                  <span>{item.reason}</span>
+                  {item.isKnockout ? (
+                    <span>
+                      Clasificado: {teamsByCode[item.qualifiedTeam]?.flag || ""} {teamsByCode[item.qualifiedTeam]?.name || item.qualifiedTeam || "Pendiente"}
+                    </span>
+                  ) : (
+                    <>
+                      <p>Tu apuesta: {item.predictedOutcome} · Resultado oficial: {item.actualOutcome}</p>
+                      <span>{item.reason}</span>
+                    </>
+                  )}
                 </article>
               ))}
             </div>

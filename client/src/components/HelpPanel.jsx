@@ -32,12 +32,10 @@ export function HelpPanel({ audience = "player", onClose }) {
           <ul>
             <li>Partido acertado de fase de grupos: 2 puntos.</li>
             <li>Acertar todos los partidos de un mismo grupo: 8 puntos.</li>
-            <li>Equipo acertado en dieciseisavos: 5 puntos en su sitio, 3 puntos fuera de sitio.</li>
-            <li>Equipo acertado en octavos: 6 puntos.</li>
-            <li>Equipo acertado en cuartos: 7 puntos.</li>
-            <li>Equipo acertado en semifinales: 8 puntos.</li>
-            <li>Equipo acertado en tercer y cuarto puesto: 9 puntos.</li>
-            <li>Equipo acertado finalista: 10 puntos.</li>
+            <li>Equipo clasificado para dieciseisavos: 5 puntos en su cruce correcto y 3 puntos si aparece en otro cruce.</li>
+            <li>Equipo acertado que pasa de octavos: 6 puntos.</li>
+            <li>Equipo acertado que pasa de cuartos: 7 puntos.</li>
+            <li>Equipo acertado que pasa de semifinales: 8 puntos.</li>
             <li>Acertar tercer clasificado: 10 puntos.</li>
             <li>Acertar el campeón: 12 puntos.</li>
             <li>Acertar el máximo goleador: 12 puntos.</li>
