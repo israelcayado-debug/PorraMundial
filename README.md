@@ -31,12 +31,10 @@ El máximo goleador se escribe libremente. Al evaluar el Mundial, el administrad
 
 - Partido acertado de fase de grupos: 2 puntos.
 - Acertar todos los partidos de un mismo grupo: 8 puntos.
-- Equipo acertado en dieciseisavos: 5 puntos en su sitio, 3 puntos fuera de sitio.
-- Equipo acertado en octavos: 6 puntos.
-- Equipo acertado en cuartos: 7 puntos.
-- Equipo acertado en semifinales: 8 puntos.
-- Equipo acertado en tercer y cuarto puesto: 9 puntos.
-- Equipo acertado finalista: 10 puntos.
+- Equipo clasificado para dieciseisavos: 5 puntos en su cruce correcto y 3 puntos si aparece en otro cruce.
+- Equipo acertado que pasa de octavos: 6 puntos.
+- Equipo acertado que pasa de cuartos: 7 puntos.
+- Equipo acertado que pasa de semifinales: 8 puntos.
 - Acertar tercer clasificado: 10 puntos.
 - Acertar el campeón: 12 puntos.
 - Acertar el máximo goleador: 12 puntos.
@@ -56,6 +54,10 @@ Si dos participantes empatan a puntos en la clasificación general, se desempata
 7. Más equipos acertados en dieciseisavos.
 8. Más aciertos en fase de grupos.
 9. Si siguen empatados, comparten posición y premio.
+
+La tabla muestra siempre una clasificacion provisional con un numero de puesto por jugador. Cuando todos los criterios anteriores siguen empatados, se usa el nombre del jugador como ultimo criterio visual para ordenar la lista, sin modificar puntos, premios ni datos guardados.
+
+En la vista de clasificacion se muestran cuatro columnas: puesto, jugador, puntos y cambio de puesto respecto a la jornada anterior disponible. La columna `Cambio` muestra `+N`, `-N`, `=` o `-`. El desglose secundario de puntos de cuadro, grupos y bonus se mantiene en los datos de la API, pero no se muestra en la tabla para mejorar la lectura en movil.
 
 ## Arranque local
 

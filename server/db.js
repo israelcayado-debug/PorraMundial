@@ -3,6 +3,7 @@ import path from "node:path";
 import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
 import { matches, standingsPredictions, teams, tournamentConfig } from "./data/seed.js";
+import { officialMatches } from "./data/officialSchedule.js";
 
 const dataDir = path.resolve("data");
 const databasePath = process.env.DATABASE_PATH || path.join(dataDir, "porra.db");
@@ -37,6 +38,8 @@ CREATE TABLE IF NOT EXISTS matches (
   kickoff_at TEXT NOT NULL,
   home_team TEXT NOT NULL,
   away_team TEXT NOT NULL,
+  actual_home_team TEXT,
+  actual_away_team TEXT,
   actual_home_score INTEGER,
   actual_away_score INTEGER
 );
@@ -111,6 +114,41 @@ if (!userColumns.some((column) => column.name === "status")) {
 const matchColumns = db.prepare("PRAGMA table_info(matches)").all();
 if (!matchColumns.some((column) => column.name === "match_number")) {
   db.exec("ALTER TABLE matches ADD COLUMN match_number INTEGER");
+}
+
+if (!matchColumns.some((column) => column.name === "actual_home_team")) {
+  db.exec("ALTER TABLE matches ADD COLUMN actual_home_team TEXT");
+}
+
+if (!matchColumns.some((column) => column.name === "actual_away_team")) {
+  db.exec("ALTER TABLE matches ADD COLUMN actual_away_team TEXT");
+}
+
+// Knockout participants must remain bracket references (2A, W73, and so on).
+// Replacing them with the official teams makes every player see and score the
+// same bracket instead of the bracket produced by their own predictions.
+const bracketTemplates = officialMatches.filter((match) => match.stage !== "groups");
+const hasOfficialBracket = bracketTemplates.some((match) => (
+  db.prepare("SELECT 1 FROM matches WHERE match_number = ?").get(match.match_number)
+));
+
+if (hasOfficialBracket) {
+  const restoreBracketTemplate = db.prepare(`
+    UPDATE matches
+    SET home_team = ?, away_team = ?, group_name = ?
+    WHERE match_number = ? AND stage != 'groups'
+  `);
+  const restoreBracketTemplates = db.transaction(() => {
+    for (const match of bracketTemplates) {
+      restoreBracketTemplate.run(
+        match.home_team,
+        match.away_team,
+        match.group_name ?? null,
+        match.match_number
+      );
+    }
+  });
+  restoreBracketTemplates();
 }
 
 const countRow = (table) => db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count;

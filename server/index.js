@@ -17,7 +17,10 @@ app.use(express.json());
 
 function getTournamentSettings() {
   const firstKickoff = db.prepare("SELECT kickoff_at FROM matches ORDER BY kickoff_at LIMIT 1").get()?.kickoff_at ?? null;
-  const bettingClosesAt = firstKickoff ? dayjs(firstKickoff).subtract(1, "day").toISOString() : null;
+  const manualBettingClosesAt = process.env.BETTING_CLOSES_AT;
+  const bettingClosesAt = manualBettingClosesAt && dayjs(manualBettingClosesAt).isValid()
+    ? dayjs(manualBettingClosesAt).toISOString()
+    : firstKickoff ? dayjs(firstKickoff).subtract(1, "day").toISOString() : null;
   const betsLocked = bettingClosesAt ? dayjs().isAfter(dayjs(bettingClosesAt)) : false;
 
   return {
